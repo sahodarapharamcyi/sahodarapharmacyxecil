@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#087f3f">
+  <title>Sahodara Pharmacy</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+<header class="topbar">
+  <button class="brand brand-menu-btn" type="button" onclick="openProfileMenu()" aria-label="Open customer menu"><img class="brand-logo" src="sahodara-logo.jpeg" alt="Sahodara Pharmacy logo"><span><b>Sahodara</b> Pharmacy<small>Affordable Care, Brotherly Trust</small></span></button>
+  <nav>
+    <a href="#home">Home</a><a href="#categories">Categories</a><a href="#products">Products</a><a href="#recent">Recently Viewed</a>
+    <button class="account-btn" onclick="openAccount()" aria-label="My Account"><span id="accountLabel">Login</span></button>
+    <button class="basket-link basket-icon-btn" onclick="openBasket()" aria-label="Open basket" title="Open basket">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 10h16l-1.2 10H5.2L4 10Z"></path><path d="M8 10a4 4 0 0 1 8 0"></path>
+      </svg>
+      <span id="basketCount">0</span>
+    </button>
+  </nav>
+
+  <!-- Customer menu backdrop -->
+  <div class="profile-menu-backdrop" id="profileMenuBackdrop" onclick="closeProfileMenu()"></div>
+  <!-- Customer menu is anchored directly under the logo/header -->
+  <aside class="profile-menu" id="profileMenu" aria-label="Customer menu">
+    <div class="profile-menu-head"><div><strong id="profileMenuTitle">My Account</strong><small id="profileMenuSubtitle">Sahodara Pharmacy</small></div><button type="button" onclick="closeProfileMenu()" aria-label="Close">×</button></div>
+    <div class="profile-menu-list" id="profileMenuList"></div>
+  </aside>
+</header>
+
+
+<main>
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <p class="eyebrow">SAHODARA PHARMACY</p>
+    <h1>Affordable Care,<br><span>Brotherly Trust</span></h1>
+    <p>Find your products quickly and place your order directly through our website.</p>
+    <div class="searchbar-wrap"><div class="searchbar"><input id="searchInput" type="search" placeholder="Search by product, brand or formula..." oninput="renderProducts()"><button onclick="renderProducts()">Search</button></div><div id="searchSuggestions" class="search-suggestions hidden"></div></div>
+  </div>
+</section>
+
+<section class="ad-section" id="adSection" aria-label="Special offers and events">
+  <div class="ad-slider" id="adSlider">
+    <div id="adTrack" class="ad-track"></div>
+    <button id="adPrev" class="ad-arrow ad-prev" aria-label="Previous slide" onclick="changeAdSlide(-1)">‹</button>
+    <button id="adNext" class="ad-arrow ad-next" aria-label="Next slide" onclick="changeAdSlide(1)">›</button>
+    <div id="adDots" class="ad-dots" aria-label="Ad slides"></div>
+  </div>
+</section>
+
+<section class="category-filter-section" id="categories" aria-label="Product categories">
+  <div class="category-head"><h2>Categories</h2><span>Browse products by type or discount</span></div>
+  <div class="category-filters" role="tablist" aria-label="Product categories">
+    <button class="category-pill active" data-category="all" onclick="setCategory('all')">All Products</button>
+    <button class="category-pill category-purple" data-category="brand" onclick="setCategory('brand')">Brand</button>
+    <button class="category-pill category-blue" data-category="formula" onclick="setCategory('formula')">Formula</button>
+    <button class="category-pill category-orange" data-category="discount20" onclick="setCategory('discount20')">UPTO 20%</button>
+    <button class="category-pill category-violet" data-category="discount50" onclick="setCategory('discount50')">UPTO 50%</button>
+    <button class="category-pill category-red" data-category="discount95" onclick="setCategory('discount95')">UPTO 95%</button>
+  </div>
+</section>
+
+
+<section class="offers-section hidden" id="offersSection">
+  <div class="section-head"><h2>Special Offers</h2><span>Available offers</span></div>
+  <div id="offersGrid" class="offers-grid"></div>
+</section>
+
+<section class="benefits">
+  <div>Quality <b>Quality Products</b><small>Trusted products</small></div>
+  <div>Delivery <b>Fast Delivery</b><small>Quick service</small></div>
+  <div>Returns <b>Easy Returns</b><small>Simple support</small></div>
+  <div>Orders <b>Easy Online Orders</b><small>Order directly on our website</small></div>
+</section>
+
+<section class="section" id="products">
+  <div class="section-head"><h2>Products</h2><span id="productCount"></span></div>
+  <div id="productGrid" class="product-grid"></div>
+</section>
+
+<section class="section recent-section" id="recent">
+  <div class="section-head"><h2>Recently Viewed</h2><button class="text-btn" onclick="clearRecent()">Clear</button></div>
+  <div id="recentGrid" class="recent-grid"></div>
+</section>
+</main>
+
+
+<div class="image-lightbox" id="imageLightbox" onclick="closeImageZoom(event)">
+  <button class="image-lightbox-close" onclick="closeImageZoom()">×</button>
+  <button class="zoom-control zoom-out" onclick="zoomImage(-0.25);event.stopPropagation()">-</button>
+  <div class="zoom-stage" id="zoomStage" onclick="event.stopPropagation()">
+    <img id="zoomedProductImage" src="" alt="Product image" onclick="toggleImageZoom(event)">
+  </div>
+  <button class="zoom-control zoom-in" onclick="zoomImage(0.25);event.stopPropagation()">+</button>
+  <div class="zoom-hint">Pinch / scroll to zoom • Double tap image to zoom</div>
+</div>
+
+<!-- Product overview -->
+<div class="modal" id="productModal">
+  <div class="modal-card product-modal">
+    <button class="modal-close" onclick="closeProduct()">×</button>
+    <div id="productOverview"></div>
+  </div>
+</div>
+
+<!-- Basket -->
+<div class="drawer-backdrop" id="basketBackdrop" onclick="closeBasket()"></div>
+<aside class="basket-drawer" id="basketDrawer">
+  <div class="drawer-head"><h2>Your Basket</h2><small class="max-note">Maximum 6 quantity per product</small><button class="modal-close" onclick="closeBasket()">×</button></div>
+  <div id="basketItems"></div>
+  <div id="basketSummary"></div>
+</aside>
+
+<!-- Delete confirmation -->
+<div class="modal" id="deleteModal">
+  <div class="modal-card confirm-card">
+    <div class="warning">Warning</div>
+    <h2>Are you sure you want to delete?</h2>
+    <p>This product will be removed from your basket.</p>
+    <div class="modal-actions"><button class="secondary" onclick="closeDelete()">No</button><button class="danger" onclick="confirmDelete()">Yes, Delete</button></div>
+  </div>
+</div>
+
+<!-- Checkout -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-card checkout-card">
+    <button class="modal-close" onclick="closeCheckout()">×</button>
+    <h2>Checkout</h2>
+    <div class="form-grid">
+      <input id="customerName" placeholder="Full Name *">
+      <input id="customerPhone" placeholder="Phone Number *" inputmode="tel">
+      <textarea id="customerAddress" placeholder="Delivery Address *"></textarea>
+      <textarea id="customerNotes" placeholder="Notes (optional)"></textarea>
+      <div class="saved-address-box" id="savedAddressBox"></div>
+      <label class="upload-prescription"><input id="prescriptionFile" type="file" accept="image/*,.pdf"> <span>Optional: Upload prescription</span><small>Use only where required and permitted.</small></label>
+    </div>
+    <div class="order-preview" id="orderPreview"></div>
+    <div class="modal-actions"><button class="secondary" onclick="closeCheckout()">Cancel</button><button class="primary" onclick="placeOrder()">Place Order</button></div>
+  </div>
+</div>
+
+<!-- Account -->
+<div class="modal" id="accountModal">
+  <div class="modal-card account-modal-card">
+    <button class="modal-close" onclick="closeAccount()">×</button>
+    <div id="accountView"></div>
+  </div>
+</div>
+
+<!-- Order History / Tracking -->
+<div class="modal" id="ordersModal">
+  <div class="modal-card account-modal-card">
+    <button class="modal-close" onclick="closeOrdersModal()">×</button>
+    <div id="ordersView"></div>
+  </div>
+</div>
+
+<!-- Wishlist -->
+<div class="modal" id="wishlistModal">
+  <div class="modal-card account-modal-card">
+    <button class="modal-close" onclick="closeWishlist()">×</button>
+    <div id="wishlistView"></div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="modal" id="notificationsModal">
+  <div class="modal-card account-modal-card">
+    <button class="modal-close" onclick="closeNotifications()">×</button>
+    <div id="notificationsView"></div>
+  </div>
+</div>
+
+<!-- Auth -->
+<div class="modal" id="authModal">
+  <div class="modal-card auth-card">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <div id="authView"></div>
+  </div>
+</div>
+
+<!-- Order Success -->
+<div class="modal" id="orderSuccessModal">
+  <div class="modal-card" style="text-align:center;max-width:420px">
+    <div style="font-size:54px;line-height:1;margin-bottom:12px">✓</div>
+    <h2>Order Successfully Placed!</h2>
+    <p id="orderSuccessText">Thank you. Your order has been received.</p>
+    <button class="primary full" onclick="closeOrderSuccess()">Continue Shopping</button>
+  </div>
+</div>
+<footer><b>Sahodara Pharmacy</b> — Affordable Care, Brotherly Trust<br><small>Online orders can be placed directly through this website. <a href="privacy-policy.html">Privacy Policy</a></small></footer>
+<script src="script.js"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js").catch(()=>{});}</script></body>
+</html>
