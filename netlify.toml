@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions."hourly-product-notify"]
+  schedule = "0 * * * *"
+
+[functions."abandoned-product-notify"]
+  schedule = "* * * * *"
